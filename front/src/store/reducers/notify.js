@@ -1,16 +1,14 @@
-
-
 const notify = (state = [], action) => {
   switch (action.type) {
     case "addNotify":
-      return [action.payload]
+      return [action.payload];
 
     case "removeNotify":
-      return [action.payload]
+      return [action.payload];
 
-    default :
-      return state
+    default:
+      return state;
   }
-}
+};
 
-export default notify
+export default notify;

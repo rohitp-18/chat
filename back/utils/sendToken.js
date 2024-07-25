@@ -10,12 +10,11 @@ const sendToken = (user, statusCode, res) => {
     .cookie("token", token, {
       httpOnly: true,
       expires: new Date(
-        Date.now() + process.env.JWT_EXPIRE * 24 * 60 * 60 * 1000,
+        Date.now() + process.env.JWT_EXPIRE * 24 * 60 * 60 * 1000
       ),
     })
     .json({
       success: true,
-      token,
       user,
     });
 };

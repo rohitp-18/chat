@@ -92,7 +92,7 @@ export default function SearchAppBar() {
 
   return (
     <Box>
-      <AppBar position="static">
+      <AppBar style={{ boxShadow: "none" }}>
         <Toolbar className=" w-full flex justify-center">
           {search ? (
             <>

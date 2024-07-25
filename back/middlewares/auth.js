@@ -1,23 +1,25 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const ErrorHandler = require("../utils/ErrorHandler");
 
 const auth = asyncHandler(async (req, res, next) => {
   const { token } = req.cookies;
+
   if (!token) {
-    throw new Error("please login first");
+    return next(new ErrorHandler("Please Login First", 403));
   }
 
-  const { _id } = jwt.verify(token, process.env.JWT_SECRET);
-
-  if (!_id) {
-    throw new Error("plaase login first");
+  try {
+    var a = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 402));
   }
 
-  const user = await User.findById(_id);
+  const user = await User.findById(a._id);
 
   if (!user) {
-    throw new Error("please login uaer first");
+    return next(new ErrorHandler("Please Login First", 403));
   }
 
   req.user = user;

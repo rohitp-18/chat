@@ -3,64 +3,77 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginRequest } from "../store/actions/userAction";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { clearErrors } from "../store/actions/chatAction";
+import { LOGIN_RESET } from "../store/constants/userConstant";
 
 const Login = () => {
-  const user = useSelector((state) => state.login);
+  const [email, setEamil] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { user, success, error, loading } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
 
   const loginHandler = (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    if (!email && !password) {
+      alert("please fill all fields");
+      return;
+    }
 
-    const data = { email, password };
-
-    dispatch(loginRequest(data));
-    nevigate("/");
+    dispatch(loginRequest({ email, password }));
   };
 
   useEffect(() => {
-    let token = JSON.parse(localStorage.getItem("token"));
-    if (token) {
-      nevigate("/");
+    if (user) {
+      navigate("/");
+      return;
     }
-  }, [dispatch, user]);
+    if (success) {
+      alert("login successfully");
+      dispatch({ type: LOGIN_RESET });
+      navigate("/");
+      return;
+    }
+    if (error) {
+      alert(error);
+      dispatch(clearErrors());
+    }
+  }, [dispatch, user, success, error]);
 
   return (
-    <div className="flex justify-center">
-      {user.loading ? (
+    <div className="bg-[#eee] min-h-[100vh] align-center flex justify-center">
+      {loading ? (
         <h1>Loading ....</h1>
       ) : (
         <form
           onSubmit={(e) => loginHandler(e)}
-          className="p-2 max-w-[450px] my-auto p-2 pt-3 m-2 mt-[80px] bg-white-900"
+          className="bg-[#fff] rounded max-w-[450px] my-auto p-3 pt-5 bg-black-900"
         >
-          <h1 className="text-center text-3xl font-bold">Login Form</h1>
-
+          <h1 className="text-center mb-2 text-3xl font-bold">Login Form</h1>
           <input
             className="outline-transparent outline-0 bg-transparent border-b-2 border-gray-600 my-3 p-2 w-[100%]"
-            name="email"
             type="email"
+            value={email}
+            onChange={(e) => setEamil(e.target.value)}
             placeholder="Email"
           />
-
           <input
             className="outline-transparent outline-0 bg-transparent border-b-2 border-gray-600 my-3 p-2 w-[100%]"
-            name="password"
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
           />
-
-          <div className="text-gray-600">Forgot Password?</div>
-
-          <button className="w-[100%] h-[40px] mt-3 bg-blue-500 text-white font-bold hover:text-blue-700 rounded-full hover:bg-blue-200">
+          <button
+            type="submit"
+            className="w-[100%] h-[40px] mt-5 bg-blue-500 text-white font-bold hover:text-blue-700 rounded-full hover:bg-blue-200"
+          >
             Login
           </button>
-
-          <div className="text-center font-gray-500 mt-2">
+          <div className="text-center font-gray-500">
             If you are new user
             <Link to="/register" className="text-blue-500">
               {" "}

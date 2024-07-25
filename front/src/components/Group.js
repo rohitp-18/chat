@@ -1,30 +1,27 @@
-import axios from "../store/axios";
 import { useState } from "react";
-import { Box, Stack, Avatar, Modal } from "@mui/material";
+import { Box, Stack, Avatar, Modal, Button } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useDispatch, useSelector } from "react-redux";
+import { createGroup, getChats } from "../store/actions/chatAction";
 
 const Group = ({ group, setGroup }) => {
-  const [searchInp, setSearchInp] = useState("");
-  const [searchValue, setSearchValue] = useState([]);
+  const [input, setInput] = useState("");
+  const [name, setName] = useState("");
+  // const [searchValue, setSearchValue] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState([]);
 
-  const findUser = async (e) => {
-    setSearchInp(e.target.value);
-    let res = await axios
-      .get(`/user/find?search=${e.target.value}`)
-      .then((res) => {
-        setSearchValue(res.data);
-      })
-      .catch((err) => {});
+  const dispatch = useDispatch();
+  const { search } = useSelector((state) => state.search);
+
+  const findUser = (e) => {
+    setInput(e.target.value);
+    dispatch(getChats(e.target.value));
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    axios.post("/chats/create", {
-      users: selectedUserId,
-      name: e.target.name.value,
-    });
+    dispatch(createGroup({ users: selectedUserId, name }));
   };
 
   const addHandler = (item) => {
@@ -40,8 +37,8 @@ const Group = ({ group, setGroup }) => {
   };
 
   return (
-    <Modal open={group} onClose={() => setGroup()}>
-      <Box className=" mx-auto py-2 mt-20 border-0 outline-0 max-w-[300px] bg-white flex flex-col justify-center items-center">
+    <Modal open={group} onClose={() => setGroup(false)}>
+      <Box className=" mx-auto py-2 mt-20 border-0 outline-0 w-[320px] bg-white flex flex-col justify-center items-center">
         <div className="text-center font-bold font-size-xl">Create Group</div>
         <form onSubmit={(e) => submitHandler(e)}>
           <input
@@ -49,7 +46,8 @@ const Group = ({ group, setGroup }) => {
             placeholder="Enter your group name"
             type="text"
             name="name"
-            onChange={(e) => findUser(e)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
           <label className="relative pb-2 block">
             <span className="sr-only">Search</span>
@@ -64,53 +62,52 @@ const Group = ({ group, setGroup }) => {
               onChange={(e) => findUser(e)}
             />
           </label>
-          <button className="flex font-white-900 p-2 float-right clear-both bg-voilet-300 rounded">
+          <Button
+            variant="contained"
+            className="flex font-white-900 p-2 float-right clear-both bg-voilet-300 rounded"
+          >
             Create
-          </button>
+          </Button>
         </form>
         <div className="flex">
           {selectedUsers &&
-            selectedUsers.map((user) => {
-              return (
-                <div
-                  style={{ fontSize: "12px" }}
-                  key={user._id}
-                  onClick={() => removeHandler(user)}
-                  className="p-[3px] text-white mx-1 bg-green-300 rounded"
-                >
-                  {user.name} X
-                </div>
-              );
-            })}
+            selectedUsers.map((user) => (
+              <div
+                style={{ fontSize: "12px" }}
+                key={user._id}
+                onClick={() => removeHandler(user)}
+                className="p-[3px] text-white mx-1 bg-green-300 rounded"
+              >
+                {user.name} X
+              </div>
+            ))}
         </div>
         <Stack style={{ width: "100%" }} spacing={2}>
-          {searchValue.length <= 0 ? (
-            searchInp.length < 1 ? (
+          {!search ? (
+            input.length < 1 ? (
               <div>Please Enter user names</div>
             ) : (
               <div>Users not found</div>
             )
           ) : (
-            searchValue.map((user) => {
-              return (
-                <div
-                  key={user._id}
-                  className="w-full flex hover:text-white hover:bg-blue-200 font-bold p-2 w-full justify-between"
-                  user={user}
-                  onClick={() => addHandler(user)}
-                >
-                  <div className="flex items-center w-full">
-                    <div className="">
-                      <Avatar />
-                    </div>
-                    <div className="px-2 font-size-md">{user.name}</div>
-                  </div>
+            search.map((user) => (
+              <div
+                key={user._id}
+                className="w-full flex hover:text-white hover:bg-blue-200 font-bold p-2 w-full justify-between"
+                user={user}
+                onClick={() => addHandler(user)}
+              >
+                <div className="flex items-center w-full">
                   <div className="">
-                    <MoreVertIcon />
+                    <Avatar />
                   </div>
+                  <div className="px-2 font-size-md">{user.name}</div>
                 </div>
-              );
-            })
+                <div className="">
+                  <MoreVertIcon />
+                </div>
+              </div>
+            ))
           )}
         </Stack>
       </Box>

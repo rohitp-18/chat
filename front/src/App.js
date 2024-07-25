@@ -1,23 +1,20 @@
 import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import {useEffect} from "react"
-import Chat from "./pages/Chat"
-import { Provider} from "react-redux"
-
-
-
-
+import { useEffect } from "react";
+import Chat from "./pages/Chat";
+import { Provider } from "react-redux";
 import Register from "./pages/register";
 import Login from "./pages/login";
 import Home from "./pages/Home";
-import store from "./store/store"
+import store from "./store/store";
+import { getUserAction } from "./store/actions/userAction";
+import ProtectRoute from "./components/ProtectRoute";
 //import Notify from "./pages/notify"
 
 function App() {
-
   useEffect(() => {
-    
-  }, [])
+    store.dispatch(getUserAction());
+  }, [store]);
   const router = createBrowserRouter([
     {
       path: "/register",
@@ -33,13 +30,18 @@ function App() {
     },*/
     {
       path: "/:id",
-      element: <Chat />
+      element: <Chat />,
     },
     {
       path: "/",
-      element: <Home />,
-    }
+      element: (
+        <ProtectRoute>
+          <Home />
+        </ProtectRoute>
+      ),
+    },
   ]);
+
   return (
     <>
       <Provider store={store}>
@@ -47,7 +49,6 @@ function App() {
       </Provider>
     </>
   );
-      
 }
 
 export default App;

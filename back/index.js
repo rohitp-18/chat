@@ -11,7 +11,7 @@ const message = require("./routers/messageRouter");
 const error = require("./middlewares/error");
 const chat = require("./routers/chatRouter");
 
-dotenv.config({ path: path.resolve(__dirname, "./config/dot.env") });
+dotenv.config({ path: path.resolve(__dirname, "./config/.env") });
 
 mongodb();
 
@@ -27,7 +27,7 @@ app.use("/api/v1/user", user);
 app.use("/api/v1/chats", chat);
 app.use("/api/v1/message", message);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 //app.use(express.static(path.join(__dirname, "build")));
 
@@ -54,17 +54,15 @@ io.on("connection", (socket) => {
     socket.join(data);
   });
 
-  socket.on("typing", ({ user, me }) => {
-    socket.in(user).emit("typing", me);
+  socket.on("typing", ({ chat, user }) => {
+    socket.in(chat).emit("typing", user);
   });
 
-  socket.on("stop typing", ({ user, me }) =>
-    socket.in(user).emit("stop typing", me)
+  socket.on("stop typing", ({ chat, user }) =>
+    socket.in(chat).emit("stop typing", user)
   );
 
   socket.on("new message", (data) => {
-    let chat = data.chat;
-
     data.chat.users.forEach((user) => {
       if (data.sender._id === user._id) return;
       socket.in(user._id).emit("message received", data);

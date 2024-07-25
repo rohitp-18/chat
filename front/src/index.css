@@ -1,3 +1,13 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+
+.screen {
+  @apply xs:w-full sm:w-full w-[600px] mx-auto;
+}
+
+@import "tailwindcss/utilities";
+
+form {
+  box-shadow: 0 0 10px #aaa;
+  border-radius: 15px;
+}

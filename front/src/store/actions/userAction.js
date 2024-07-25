@@ -18,14 +18,10 @@ const loginRequest =
       dispatch({ type: LOGIN_REQUSET });
 
       const { data } = await axios.post("/user/login", { email, password });
-      if (!data.token) {
-        dispatch({ type: LOGIN_FAILURE, payload: "invalid credentials" });
-      }
-      localStorage.setItem("token", JSON.stringify(data.token));
 
       dispatch({ type: LOGIN_SUCCESS, payload: data });
     } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, payload: error.message });
+      dispatch({ type: LOGIN_FAILURE, payload: error.response.data.message });
     }
   };
 
@@ -36,11 +32,10 @@ const getUserAction = () => async (dispatch) => {
     const { data } = await axios.get("/user/getuser", {
       withCredentials: true,
     });
-    localStorage.setItem("token", JSON.stringify(data.token));
 
     dispatch({ type: GET_USER_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({ type: GET_USER_FAILURE, payload: error.message });
+    dispatch({ type: GET_USER_FAILURE, payload: error.response.data.message });
   }
 };
 
@@ -48,12 +43,13 @@ const registerRequest = (user) => async (dispatch) => {
   try {
     dispatch({ type: REGISTER_REQUEST });
 
-    const { data } = await axios.post("/user/register", user);
-    localStorage.setItem("token", JSON.stringify(data.token));
+    const { data } = await axios.post("/user/register", user, {
+      withCredentials: true,
+    });
 
     dispatch({ type: REGISTER_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({ type: REGISTER_FAILURE, payload: error.message });
+    dispatch({ type: REGISTER_FAILURE, payload: error.response.data.message });
   }
 };
 
@@ -62,7 +58,7 @@ const addUserChat = (user) => async (dispatch) => {
 };
 
 const removeUserChat = () => async (dispatch) => {
-  dispatch({ type: "removeUserChat", payload: {} });
+  dispatch({ type: "removeUserChat", payload: undefined });
 };
 
 const addNotify = (notify) => async (dispatch) => {

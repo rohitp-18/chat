@@ -1,38 +1,34 @@
 const User = require("../models/userModel");
+const ErrorHandler = require("../utils/ErrorHandler");
 const sendToken = require("../utils/sendToken");
 const asyncHandler = require("express-async-handler");
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
-  /* const data = {
-    name: "rohit",
-    email: "abc@gmail.com",
-    password: "12345678"
-  }*/
+
   if (!name || !email || !password) {
-    throw new Error("please fill all the required fields");
+    return next(new ErrorHandler("Please fill all required fields", 400));
   }
 
   const user = await User.create({ name, email, password });
-
-  sendToken(user, 201, res);
 });
 
 const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    throw new Error("please fill all the required fields");
+    return next(new ErrorHandler("please fill all the required fields", 400));
   }
 
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new Error("Invalid credentials ");
+    return next(new ErrorHandler("Invalid Email and Password", 402));
   }
 
   const comparePassword = await user.comparePassword(password);
+
   if (!comparePassword) {
-    throw new Error("Invalid paa credentials ");
+    return next(new ErrorHandler("Invalid Email and Password", 402));
   }
 
   sendToken(user, 200, res);
@@ -51,31 +47,29 @@ const logoutUser = asyncHandler(async (req, res, next) => {
   const { token } = req.cookies;
 
   if (!token) {
-    throw new Error("please login first");
+    return next(new ErrorHandler("Please Login again", 400));
   }
 
-  res
-    .cookie("token", null, {
-      expires: new Date(Date.now()),
-      httpOnly: true,
-    })
-    .json({
-      success: true,
-      user: req.user,
-    });
+  res.clearCookie("token").json({
+    success: true,
+    user: req.user,
+  });
 });
 
-const findUsers = asyncHandler(async (req, res, next) => { 
-  let search = req.query.search ? {
-    $and: [{
-      name: {
-        $regex: req.query.search, $options: 'i'
+const findUsers = asyncHandler(async (req, res, next) => {
+  let search = req.query.search
+    ? {
+        $and: [
+          {
+            name: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+        ],
       }
-    }]
-  }: {
-  
-  }
-  const users = await User.find(search).find({_id: {$ne: req.user._id}})
+    : {};
+  const users = await User.find(search).find({ _id: { $ne: req.user._id } });
 
   res.json(users);
 });

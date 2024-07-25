@@ -1,0 +1,3 @@
+.full-height-chat {
+  height: calc(100vh - 64px);
+}
