@@ -61,7 +61,7 @@ const removeUserChat = () => async (dispatch) => {
   dispatch({ type: "removeUserChat", payload: undefined });
 };
 
-const addNotify = (notify) => async (dispatch) => {
+const addNotify = (notify) => async (dispatch, store) => {
   dispatch({ type: "addNotify", payload: notify });
 };
 

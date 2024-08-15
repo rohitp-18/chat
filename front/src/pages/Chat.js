@@ -1,31 +1,47 @@
-import { Stack, Avatar, Box, Modal, IconButton } from "@mui/material";
+import { Stack, Avatar, Box, Modal, IconButton, Input } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { ArrowBack, Visibility } from "@mui/icons-material";
+import {
+  ArrowBack,
+  Face6,
+  Link,
+  Mic,
+  PhoneOutlined,
+  Search,
+  Send,
+  VideocamOutlined,
+} from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Lottie from "react-lottie";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 import Group from "../components/UpdateGroup";
 import ChatModel from "../components/chatModel";
 import axios from "../store/axios";
 import animationData from "../assets/loader.json";
 import { addNotify, removeUserChat } from "../store/actions/userAction";
+import socket from "../components/socketContext";
+import { createNotify } from "../store/actions/notifyAction";
 
-let socket, selectedChat;
-const Chat = () => {
+// let socket, selectedChat;
+const Chat = ({ view }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { chat } = useSelector((state) => state.select);
   const { user } = useSelector((state) => state.user);
-  const notify = useSelector((state) => state.notify);
+  const { notify, arr } = useSelector((state) => state.notify);
+
   const [model, setModel] = useState(false);
   const [userInfo, setUserInfo] = useState(false);
   // const [update, setUpdate] = useState(false);
   const [message, setMessage] = useState([]);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [socketConnected, setSocketConnected] = useState(false);
   const [messageInput, setMessageInput] = useState("");
+  const [size, setSize] = useState(view === "mobile");
+
+  useEffect(() => {
+    setSize(view === "mobile");
+  }, [view]);
 
   const defaultOptions = {
     loop: true,
@@ -49,11 +65,11 @@ const Chat = () => {
     if (!chat) {
       navigate("/");
     }
-    socket = io("http://localhost:5000/", {
-      rejectUnauthorized: false,
-    });
-    socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
+    // socket = io("http://localhost:5000/", {
+    //   rejectUnauthorized: false,
+    // });
+    // socket.emit("setup", user);
+    // socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", (data) => {
       if (user._id !== data) {
         setIsTyping(true);
@@ -73,11 +89,13 @@ const Chat = () => {
   useEffect(() => {
     socket.on("message received", (data) => {
       if (
-        !chat._id || // if chat is not selected or doesn't match current chat
+        !chat ||
         chat._id !== data.chat._id
+        // if chat is not selected or doesn't match current chat
       ) {
-        dispatch(addNotify(data));
-        if (notify.includes(data)) {
+        if (!arr || !arr.includes(data._id)) {
+          dispatch(createNotify({ chat, count: data._id }));
+          // dispatch(addNotify({ ...data, count: 1 }));
         }
       } else {
         setMessage([...message, data]);
@@ -86,10 +104,6 @@ const Chat = () => {
   });
 
   const typingInp = (value) => {
-    if (!socketConnected) {
-      return;
-    }
-
     if (!typing) {
       setTyping(true);
       socket.emit("typing", { chat: chat._id, user: user._id });
@@ -139,14 +153,22 @@ const Chat = () => {
   return (
     <>
       {chat && (
-        <section className="min-w-[600px] screen m-[unset]">
-          <Box className="bg-blue-600 fixed min-w-[600px] pt-[64px] z-[1] top-0 py-2 px-2 flex justify-between items-center">
-            <div className="flex items-center text-white">
-              <IconButton onClick={() => dispatch(removeUserChat())}>
-                <ArrowBack sx={{ color: "#fff" }} />
+        <section className=" w-full min-w-[320px] m-[unset]">
+          <Box
+            style={{
+              width: size ? "100%" : "-webkit-fill-available",
+            }}
+            className="bg-white fixed z-[1] top-0 py-2 px-2 xl:px-3 flex justify-between items-center"
+          >
+            <div className="flex items-center">
+              <IconButton
+                sx={{ display: size ? "block" : "none", p: "2px" }}
+                onClick={() => dispatch(removeUserChat())}
+              >
+                <ArrowBack sx={{ color: "#000" }} />
               </IconButton>
               <Avatar />
-              <h1 className="font-size-xl pl-2 font-bold">
+              <h1 className="font-size-xl pl-1 xl:pl-2 font-bold">
                 {chat.isGroup
                   ? chat.chatName
                   : chat.users[0]._id === user._id
@@ -154,8 +176,16 @@ const Chat = () => {
                   : chat.users[0].name}
               </h1>
             </div>
-            <div>
-              <Visibility onClick={() => setUserInfo(true)} />
+            <div className="flex xl:gap-[20px] xl:px-4">
+              <IconButton>
+                <VideocamOutlined />
+              </IconButton>
+              <IconButton>
+                <PhoneOutlined />
+              </IconButton>
+              <IconButton>
+                <Search />
+              </IconButton>
             </div>
           </Box>
           {chat && chat.isGroup && userInfo ? (
@@ -208,14 +238,19 @@ const Chat = () => {
           {message && <ChatModel user={user} message={message} />}
 
           <form
-            className="fixed flex screen bottom-0"
+            style={{
+              width: "-webkit-fill-available",
+              boxShadow: "none",
+              borderRadius: 0,
+            }}
+            className="fixed flex bottom-0 bg-transparent"
             onSubmit={(e) => sendMessage(e)}
           >
             {isTyping ? (
               <div>
                 <Lottie
                   options={defaultOptions}
-                  // height={50}
+                  height={50}
                   width={70}
                   style={{ marginBottom: 15, marginLeft: 0 }}
                 />
@@ -223,12 +258,56 @@ const Chat = () => {
             ) : (
               <></>
             )}
-            <input
+            <Input
               value={messageInput}
+              spellCheck
+              startAdornment={
+                <>
+                  {size && messageInput?.length < 1 && (
+                    <>
+                      <IconButton>
+                        <Link
+                          fontSize="small"
+                          sx={{
+                            transform: "rotate(90deg)",
+                            ml: size ? "2px" : "5px",
+                          }}
+                        />
+                      </IconButton>
+                      <IconButton>
+                        <Face6
+                          fontSize="small"
+                          sx={{ mx: size ? "2px" : "5px" }}
+                        />
+                      </IconButton>
+                    </>
+                  )}
+                </>
+              }
+              endAdornment={
+                messageInput?.length >= 1 ? (
+                  <IconButton type="submit">
+                    <Send fontSize="small" sx={{ mx: size ? "2px" : "5px" }} />
+                  </IconButton>
+                ) : (
+                  <IconButton>
+                    <Mic fontSize="small" sx={{ mx: size ? "2px" : "5px" }} />
+                  </IconButton>
+                )
+              }
               type="text"
               onChange={(e) => typingInp(e.target.value)}
-              className="screen p-2 outline-0 rounded"
               autoFocus
+              fullWidth
+              sx={{
+                mx: "auto",
+                bgcolor: "#fff",
+                padding: "4px",
+                margin: "4px",
+                boxShadow: "0px 0px 5px #aaa",
+                borderRadius: "8px",
+              }}
+              disableUnderline
               placeholder="Enter your message"
               onKeyUp={(e) => keyUp(e)}
             />

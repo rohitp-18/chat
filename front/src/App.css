@@ -1,3 +1,49 @@
 .full-height-chat {
   height: calc(100vh - 64px);
 }
+
+.nav-drawer a:active {
+  color: red;
+}
+
+.laptop {
+  display: flex;
+}
+
+.tablet {
+  display: none;
+}
+
+.mobile {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .laptop {
+    display: none;
+  }
+
+  .tablet {
+    display: none;
+  }
+  .mobile {
+    display: flex;
+  }
+}
+
+@media (max-width: 900px) and (min-width: 700px) {
+  .laptop {
+    display: none;
+  }
+
+  .tablet {
+    display: flex;
+  }
+  .mobile {
+    display: none;
+  }
+
+  .pt-30 {
+    padding-top: 30px !important;
+  }
+}

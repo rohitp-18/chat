@@ -1,7 +1,7 @@
 import { combineReducers } from "redux";
 import reducer from "./userReducer";
 import select from "./select";
-import notify from "./notify";
+import { notifyReducer, requestChat } from "./notifyReducer";
 import { allChatsReducer, searchReducer } from "./chatReducer";
 
 const rootReducer = combineReducers({
@@ -9,7 +9,8 @@ const rootReducer = combineReducers({
   search: searchReducer,
   chats: allChatsReducer,
   select,
-  notify,
+  notify: notifyReducer,
+  request: requestChat,
 });
 
 export default rootReducer;

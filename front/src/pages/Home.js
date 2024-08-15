@@ -17,6 +17,7 @@ import { getAllChats, getChats } from "../store/actions/chatAction";
 import AllChats from "../components/allChats";
 import About from "../components/About";
 import AboutChat from "../components/AboutChat";
+import NavDrawer from "../components/drawer";
 
 const Home = () => {
   // const nevigate = useNavigate();
@@ -25,7 +26,8 @@ const Home = () => {
   // const { chats, loading } = useSelector((state) => state.chats);
   // const notify = useSelector((state) => state.notify);
 
-  // const [search, setSearch] = useState(false);
+  const [navTab, setNavTab] = useState(false);
+  const [open, setOpen] = useState(false);
   // const [group, setGroup] = useState(false);
   // const [searchValue, setSearchValue] = useState([]);
   // const [searchInp, setSearchInp] = useState("");
@@ -50,22 +52,38 @@ const Home = () => {
     <>
       {user && (
         <>
-          {/* <Header /> */}
           <main
             style={{ overflowY: "hidden" }}
-            className="flex pt-[64px] h-[100vh] justify-between"
+            className="laptop lg:flex w-[100%] bg-[#eee] pl-[60px] h-[100vh]"
           >
-            <AllChats />
-            {chat ? (
-              <>
-                <Chats />
-                <AboutChat />
-              </>
-            ) : (
-              <>
-                <About />
-              </>
-            )}
+            <NavDrawer setOpen={setOpen} open={open} />
+            <section
+              style={{ borderRight: "1px soid #efefef" }}
+              className="bg-white px-2 rounded w-[450px]"
+            >
+              <AllChats />
+            </section>
+            {chat ? <Chats view={"laptop"} /> : <About view={"laptop"} />}
+          </main>
+          <main
+            style={{ overflowY: "hidden" }}
+            className="tablet display-none w-[100%] bg-[#eee] h-[100vh]"
+          >
+            {navTab && <NavDrawer open={navTab} setOpen={setNavTab} />}
+            <section
+              style={{ borderRight: "1px soid #efefef" }}
+              className="bg-white px-2 rounded w-[250px]"
+            >
+              <AllChats setNavTab={setNavTab} view={"tablet"} />
+            </section>
+            <Chats view={"tablet"} />
+            {/* {chat ? <Chats view={"tablet"} /> : <AllChats view={"mobile"} />} */}
+          </main>
+          <main
+            style={{ overflowY: "hidden" }}
+            className="mobile display-none  w-[100%] bg-[#eee] h-[100vh]"
+          >
+            {chat ? <Chats view={"mobile"} /> : <AllChats view={"mobile"} />}
           </main>
         </>
       )}

@@ -50,7 +50,7 @@ const Login = () => {
       ) : (
         <form
           onSubmit={(e) => loginHandler(e)}
-          className="bg-[#fff] rounded max-w-[450px] my-auto p-3 pt-5 bg-black-900"
+          className="bg-[#fff] rounded-lg max-w-[450px] my-auto p-3 pt-5 bg-black-900"
         >
           <h1 className="text-center mb-2 text-3xl font-bold">Login Form</h1>
           <input

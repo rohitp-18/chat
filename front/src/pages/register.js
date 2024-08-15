@@ -47,7 +47,7 @@ const Register = () => {
       ) : (
         <form
           onSubmit={submitForm}
-          className="bg-[#fff] rounded max-w-[450px] my-auto p-3 pt-5 bg-black-900"
+          className="bg-[#fff] rounded-lg max-w-[450px] my-auto p-3 pt-5 bg-black-900"
         >
           <h1 className="text-center mb-2 text-3xl font-bold">Register Form</h1>
           <input

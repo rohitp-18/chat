@@ -10,6 +10,7 @@ const user = require("./routers/userRouter");
 const message = require("./routers/messageRouter");
 const error = require("./middlewares/error");
 const chat = require("./routers/chatRouter");
+const notify = require("./routers/notificationRouter");
 
 dotenv.config({ path: path.resolve(__dirname, "./config/.env") });
 
@@ -26,6 +27,7 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use("/api/v1/user", user);
 app.use("/api/v1/chats", chat);
 app.use("/api/v1/message", message);
+app.use("/api/v1/notify", notify);
 
 const port = process.env.PORT;
 
@@ -41,7 +43,7 @@ const server = app.listen(port);
 
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
-  cors: "http://localhost:3000/",
+  cors: { origin: "http://localhost:3000" }, // "http://localhost:3000/",
 });
 
 io.on("connection", (socket) => {
