@@ -7,10 +7,10 @@ import {
   CREATE_NOTIFY_FAIL,
   CREATE_NOTIFY_REQUEST,
   CREATE_NOTIFY_SUCCESS,
-  DELETE_NOTIFY_FAIL,
-  DELETE_NOTIFY_REQUEST,
-  DELETE_NOTIFY_RESET,
-  DELETE_NOTIFY_SUCCESS,
+  READ_NOTIFY_FAIL,
+  READ_NOTIFY_REQUEST,
+  READ_NOTIFY_RESET,
+  READ_NOTIFY_SUCCESS,
   DENIED_CHAT_FAIL,
   DENIED_CHAT_REQUEST,
   DENIED_CHAT_RESET,
@@ -32,18 +32,20 @@ const notifyReducer = (state, action) => {
     case GET_ALL_NOTIFY_REQUEST:
     case CREATE_NOTIFY_REQUEST:
     case UPDATE_NOTIFY_REQUEST:
-    case DELETE_NOTIFY_REQUEST:
+    case READ_NOTIFY_REQUEST:
       return {
         ...state,
         loading: true,
       };
 
     case GET_ALL_NOTIFY_SUCCESS:
+      let arr = [];
+      action.payload.notification.map((n) => n.count.map((m) => arr.push(m)));
       return {
         ...state,
         loading: false,
-        notify: action.payload.notify,
-        arr: action.payload.notify.count || [],
+        notify: action.payload.notification,
+        arr,
       };
 
     case CREATE_NOTIFY_SUCCESS:
@@ -58,11 +60,11 @@ const notifyReducer = (state, action) => {
         loading: false,
       };
 
-    case DELETE_NOTIFY_SUCCESS:
+    case READ_NOTIFY_SUCCESS:
       return {
         ...state,
         loading: false,
-        deleted: action.payload.success,
+        READd: action.payload.success,
         message: action.payload.message,
       };
 
@@ -87,18 +89,18 @@ const notifyReducer = (state, action) => {
         error: action.payload,
       };
 
-    case DELETE_NOTIFY_FAIL:
+    case READ_NOTIFY_FAIL:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
 
-    case DELETE_NOTIFY_RESET:
+    case READ_NOTIFY_RESET:
       return {
         ...state,
         loading: false,
-        deleted: false,
+        READd: false,
         message: null,
       };
 

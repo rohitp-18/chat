@@ -25,7 +25,7 @@ function NavDrawer({ open, setOpen, setNavTab }) {
   const listItem = [
     { name: "Chats", url: "/?nav=chats", icon: <Chat /> },
     { name: "Calls", url: "/?nav=calls", icon: <Call /> },
-    { name: "Notification", url: "/?nav=notify", icon: <Notifications /> },
+    { name: "Notification", url: "/notify", icon: <Notifications /> },
   ];
 
   return (

@@ -10,6 +10,7 @@ import {
   REGISTER_REQUEST,
 } from "../constants/userConstant";
 import axios from "../axios";
+import { CHANGE_CHAT_REQUEST } from "../constants/chatConstant";
 
 const loginRequest =
   ({ email, password }) =>
@@ -53,11 +54,15 @@ const registerRequest = (user) => async (dispatch) => {
   }
 };
 
-const addUserChat = (user) => async (dispatch) => {
+const addUserChat = (user) => async (dispatch, getState) => {
+  user.unread = [];
+  localStorage.setItem("chat", user);
+  dispatch({ type: CHANGE_CHAT_REQUEST, payload: { chat: user } });
   dispatch({ type: "addUserChat", payload: user });
 };
 
 const removeUserChat = () => async (dispatch) => {
+  localStorage.removeItem("chat");
   dispatch({ type: "removeUserChat", payload: undefined });
 };
 

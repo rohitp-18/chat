@@ -1,4 +1,5 @@
 const { default: axios } = require("../axios");
+const { CHANGE_CHAT_REQUEST } = require("../constants/chatConstant");
 const {
   GET_ALL_NOTIFY_REQUEST,
   GET_ALL_NOTIFY_FAIL,
@@ -9,9 +10,9 @@ const {
   UPDATE_NOTIFY_REQUEST,
   UPDATE_NOTIFY_SUCCESS,
   UPDATE_NOTIFY_FAIL,
-  DELETE_NOTIFY_REQUEST,
-  DELETE_NOTIFY_SUCCESS,
-  DELETE_NOTIFY_FAIL,
+  READ_NOTIFY_REQUEST,
+  READ_NOTIFY_SUCCESS,
+  READ_NOTIFY_FAIL,
   SEND_CHAT_REQUEST,
   SEND_CHAT_SUCCESS,
   SEND_CHAT_FAIL,
@@ -27,7 +28,7 @@ const getAllNotify = () => async (dispatch) => {
   try {
     dispatch({ type: GET_ALL_NOTIFY_REQUEST });
 
-    const { data } = await axios.get("/notify/");
+    const { data } = await axios.get("/user/notify/");
 
     dispatch({ type: GET_ALL_NOTIFY_SUCCESS, payload: data });
   } catch (error) {
@@ -42,10 +43,11 @@ const createNotify = (form) => async (dispatch) => {
   try {
     dispatch({ type: CREATE_NOTIFY_REQUEST });
 
-    const { data } = await axios.post("/notify/new", form);
+    const { data } = await axios.put("/chats/notify", form);
 
     dispatch({ type: CREATE_NOTIFY_SUCCESS, payload: data });
   } catch (error) {
+    console.log(error);
     dispatch({
       type: CREATE_NOTIFY_FAIL,
       payload: error.response.data.message,
@@ -57,7 +59,7 @@ const updateNotify = (id, form) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_NOTIFY_REQUEST });
 
-    const { data } = await axios.put(`/notify/n/${id}`, form);
+    const { data } = await axios.put(`/user/notify/n/${id}`, form);
 
     dispatch({ type: UPDATE_NOTIFY_SUCCESS, payload: data });
   } catch (error) {
@@ -68,16 +70,18 @@ const updateNotify = (id, form) => async (dispatch) => {
   }
 };
 
-const deleteNotify = (id) => async (dispatch) => {
+const readNotify = (id) => async (dispatch) => {
   try {
-    dispatch({ type: DELETE_NOTIFY_REQUEST });
+    dispatch({ type: READ_NOTIFY_REQUEST });
 
-    const { data } = await axios.delete(`/notify/n/${id}`);
+    const { data } = await axios.get(`/chats/notify/${id}`);
 
-    dispatch({ type: DELETE_NOTIFY_SUCCESS, payload: data });
+    dispatch({ type: CHANGE_CHAT_REQUEST, payload: { chat: data.chat } });
+    dispatch({ type: READ_NOTIFY_SUCCESS, payload: data });
   } catch (error) {
+    console.log(error);
     dispatch({
-      type: DELETE_NOTIFY_FAIL,
+      type: READ_NOTIFY_FAIL,
       payload: error.response.data.message,
     });
   }
@@ -87,7 +91,7 @@ const sendRequest = (form) => async (dispatch) => {
   try {
     dispatch({ type: SEND_CHAT_REQUEST });
 
-    const { data } = await axios.post("/notify/req", form);
+    const { data } = await axios.post("/user/notify/req", form);
 
     dispatch({ type: SEND_CHAT_SUCCESS, payload: data });
   } catch (error) {
@@ -123,7 +127,7 @@ module.exports = {
   getAllNotify,
   createNotify,
   updateNotify,
-  deleteNotify,
+  readNotify,
 
   sendRequest,
   acceptRequest,

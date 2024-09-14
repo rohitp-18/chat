@@ -10,9 +10,8 @@ import store from "./store/store";
 import { getUserAction } from "./store/actions/userAction";
 import ProtectRoute from "./components/ProtectRoute";
 import Notify from "./pages/notify";
-import { io } from "socket.io-client";
 import socket from "./components/socketContext";
-import { getAllNotify } from "./store/actions/notifyAction";
+import { getAllNotify } from "./store/actions/notifyActions";
 
 function App() {
   useEffect(() => {
@@ -21,6 +20,7 @@ function App() {
   }, [store]);
 
   const { user } = useSelector((state) => state.user);
+  const { users } = useSelector((state) => state.select);
   // const { socket } = useSelector((state) => state.select);
   const dispatch = useDispatch();
   // let socket;
@@ -30,8 +30,18 @@ function App() {
     //   rejectUnauthorized: false,
     // });
     socket.emit("setup", user);
-    socket.on("connected", () => console.log("object"));
-    // dispatch({ type: "socket-add", payload: socket2 });
+    socket.connect();
+    socket.on("disconected", () => {
+      socket.connect();
+    });
+    socket.on("connected", (users) => {
+      dispatch({ type: "chat-connect", payload: users });
+    });
+
+    return () => {
+      socket.off("disconnected");
+      socket.off("connected");
+    };
   }, [user, socket]);
 
   const router = createBrowserRouter([

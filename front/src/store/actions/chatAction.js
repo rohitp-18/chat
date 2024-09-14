@@ -1,4 +1,5 @@
 import {
+  CHANGE_CHAT_REQUEST,
   CLEAR_ERRORS,
   CREATE_GROUP_FAIL,
   CREATE_GROUP_REQUSET,
@@ -52,4 +53,8 @@ const clearErrors = () => async (dispatch) => {
   dispatch({ type: CLEAR_ERRORS });
 };
 
-export { getAllChats, getChats, createGroup, clearErrors };
+const changeChat = (data) => async (dispatch) => {
+  dispatch({ type: CHANGE_CHAT_REQUEST, payload: data });
+};
+
+export { getAllChats, getChats, createGroup, clearErrors, changeChat };

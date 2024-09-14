@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addUserChat } from "../store/actions/userAction";
 import { Add, Check, Search } from "@mui/icons-material";
 import Menu from "@mui/icons-material/Menu";
+import { Badge } from "@mui/base";
 
 function AllChats({ view, setNavTab }) {
   const [group, setGroup] = useState(false);
@@ -64,7 +65,7 @@ function AllChats({ view, setNavTab }) {
             onClick={() => chatOpen(item)}
             key={item._id}
             style={{ backgroundColor: item._id === chat?._id && "#efefef" }}
-            className="flex text-stone-700 hover:text-stone-900 rounded-lg hover:bg-stone-100  p-2 justify-between"
+            className="flex items-center text-stone-700 hover:text-stone-900 rounded-lg hover:bg-stone-100  p-2 justify-between"
           >
             <div className="flex items-center w-full">
               <Avatar sx={{}} />
@@ -105,7 +106,18 @@ function AllChats({ view, setNavTab }) {
               </div>
             </div>
             <div className="">
-              <span></span>
+              {item.unread && !chat ? (
+                item.latestMessage.sender !== user._id &&
+                item.unread.length !== 0 ? (
+                  <p className="text-[#fff] px-1 flex items-center justify-center text-xs bg-black rounded-full min-w-[18px] min-h-[18px]">
+                    {item.unread.length}
+                  </p>
+                ) : (
+                  <></>
+                )
+              ) : (
+                chat._id != item._id && <></>
+              )}
             </div>
           </div>
         ))

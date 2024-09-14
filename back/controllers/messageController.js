@@ -10,6 +10,12 @@ const message = asyncHandler(async (req, res, next) => {
     .populate("sender", "name email")
     .populate("chat");
 
+  const chat = await Chat.findByIdAndUpdate(chatId).populate("unread");
+  if (chat.unread) {
+    chat.unread.filter((mess) => (mess.read = true));
+    chat.unread = [];
+    await chat.save();
+  }
   res.json({
     success: true,
     message,
@@ -40,6 +46,7 @@ const createMessage = asyncHandler(async (req, res, next) => {
     chatId,
     {
       latestMessage: message,
+      $push: { unread: message._id },
     },
     {
       new: true,

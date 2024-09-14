@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
+const ErrorHandler = require("../utils/ErrorHandler");
 
 const getChats = asyncHandler(async (req, res, next) => {
   const { userId } = req.body;
@@ -136,6 +137,41 @@ const updateGroup = asyncHandler(async (req, res, next) => {
   res.json(group);
 });
 
+const createNotify = asyncHandler(async (req, res, next) => {
+  const { id, message } = req.body;
+
+  const chat = await Chat.findById(id).populate();
+
+  if (!chat) {
+    return next(new ErrorHandler("invalid chat", 403));
+  }
+
+  chat.unread.push(message);
+  chat.latestMessage = message;
+  await chat.save();
+  const chat2 = await Chat.findById(id)
+    .populate("users", "-password")
+    .populate("latestMessage");
+
+  res.status(200).json({
+    success: true,
+    chat: chat2,
+  });
+});
+
+const readNotify = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const chat = await Chat.findByIdAndUpdate(id, { unread: [] })
+    .populate("users", "-password")
+    .populate("latestMessage");
+
+  res.status(200).json({
+    success: true,
+    chat,
+  });
+});
+
 module.exports = {
   getChats,
   fetchChats,
@@ -144,4 +180,7 @@ module.exports = {
   addUser,
   removeUser,
   updateGroup,
+
+  createNotify,
+  readNotify,
 };

@@ -17,6 +17,36 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your password"],
   },
+  notification: [
+    {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        require,
+      },
+      type: {
+        type: String,
+        default: "message",
+      },
+      chat: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "chat",
+      },
+      content: {
+        type: String,
+      },
+      isRead: {
+        type: Boolean,
+        default: false,
+      },
+      count: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "message",
+        },
+      ],
+    },
+  ],
 });
 
 userSchema.pre("save", async function () {

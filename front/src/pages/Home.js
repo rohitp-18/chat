@@ -63,7 +63,7 @@ const Home = () => {
             >
               <AllChats />
             </section>
-            {chat ? <Chats view={"laptop"} /> : <About view={"laptop"} />}
+            <Chats view={"laptop"} />
           </main>
           <main
             style={{ overflowY: "hidden" }}

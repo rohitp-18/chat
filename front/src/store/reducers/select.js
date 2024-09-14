@@ -15,6 +15,9 @@ const select = (state = {}, action) => {
     case "socket-add":
       return { ...state, socket: action.payload };
 
+    case "chat-connect":
+      return { ...state, users: Array.from(action.payload) };
+
     default:
       return { ...state };
   }

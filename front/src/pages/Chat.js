@@ -20,13 +20,16 @@ import axios from "../store/axios";
 import animationData from "../assets/loader.json";
 import { addNotify, removeUserChat } from "../store/actions/userAction";
 import socket from "../components/socketContext";
-import { createNotify } from "../store/actions/notifyAction";
+import { createNotify, readNotify } from "../store/actions/notifyActions";
+import { useMemo } from "react";
+import { changeChat } from "../store/actions/chatAction";
 
 // let socket, selectedChat;
 const Chat = ({ view }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { chat } = useSelector((state) => state.select);
+  const { chats } = useSelector((state) => state.chats);
+  const { chat, users } = useSelector((state) => state.select);
   const { user } = useSelector((state) => state.user);
   const { notify, arr } = useSelector((state) => state.notify);
 
@@ -36,8 +39,11 @@ const Chat = ({ view }) => {
   const [message, setMessage] = useState([]);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [chatt, setChatt] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [size, setSize] = useState(view === "mobile");
+
+  let messsageArr = [];
 
   useEffect(() => {
     setSize(view === "mobile");
@@ -62,9 +68,9 @@ const Chat = ({ view }) => {
   };
 
   useEffect(() => {
-    if (!chat) {
-      navigate("/");
-    }
+    // if (!chat) {
+    // }
+    // console.log(chat);
     // socket = io("http://localhost:5000/", {
     //   rejectUnauthorized: false,
     // });
@@ -73,6 +79,7 @@ const Chat = ({ view }) => {
     socket.on("typing", (data) => {
       if (user._id !== data) {
         setIsTyping(true);
+        console.log("typing");
       }
     });
     socket.on("stop typing", (data) => {
@@ -80,11 +87,16 @@ const Chat = ({ view }) => {
         setIsTyping(false);
       }
     });
+
+    return () => {
+      socket.off("stop typing");
+      socket.off("typing");
+    };
   }, [chat]);
 
   useEffect(() => {
     getMessage();
-  });
+  }, [chat]);
 
   useEffect(() => {
     socket.on("message received", (data) => {
@@ -93,15 +105,37 @@ const Chat = ({ view }) => {
         chat._id !== data.chat._id
         // if chat is not selected or doesn't match current chat
       ) {
-        if (!arr || !arr.includes(data._id)) {
-          dispatch(createNotify({ chat, count: data._id }));
-          // dispatch(addNotify({ ...data, count: 1 }));
+        if (chatt) {
+          setChatt(true);
+          return;
         }
+        // dispatch(
+        //   createNotify({
+        //     id: data.chat._id,
+        //     message: data._id,
+        //   })
+        // );
+        console.log(chat);
+        if (data.chat.unread.includes(data._id)) return;
+        data.chat.unread.push(data._id);
+        data.chat.latestMessage = data;
+        new Notification(data.content);
+        dispatch(changeChat({ chat: data.chat }));
+        setChatt(false);
       } else {
-        setMessage([...message, data]);
+        setMessage((mess) => [...mess, data]);
+        data.chat.latestMessage = data;
+        data.chat.unread = [];
+        console.log(data);
+        dispatch(readNotify(chat._id));
+        dispatch(changeChat({ chat: data.chat }));
       }
     });
-  });
+
+    return () => {
+      socket.off("message received");
+    };
+  }, [chat, message, socket]);
 
   const typingInp = (value) => {
     if (!typing) {
@@ -135,10 +169,11 @@ const Chat = ({ view }) => {
         chatId: chat._id,
       });
 
-      console.log(data);
+      chat.latestMessage = data.message;
+      setMessage((mess) => [...mess, data.message]);
+      dispatch(changeChat({ chat }));
 
       socket.emit("new message", data.message);
-      setMessage([...message, data.message]);
     } catch (error) {}
   };
 
@@ -246,18 +281,18 @@ const Chat = ({ view }) => {
             className="fixed flex bottom-0 bg-transparent"
             onSubmit={(e) => sendMessage(e)}
           >
-            {isTyping ? (
-              <div>
-                <Lottie
-                  options={defaultOptions}
-                  height={50}
-                  width={70}
-                  style={{ marginBottom: 15, marginLeft: 0 }}
-                />
-              </div>
+            {/* {isTyping ? (
+              // <div>
+              //   <Lottie
+              //     options={defaultOptions}
+              //     height={50}
+              //     width={70}
+              //     style={{ marginBottom: 15, marginLeft: 0 }}
+              //   />
+              // </div>
             ) : (
               <></>
-            )}
+            )} */}
             <Input
               value={messageInput}
               spellCheck

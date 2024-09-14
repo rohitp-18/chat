@@ -1,4 +1,5 @@
 import {
+  CHANGE_CHAT_REQUEST,
   CLEAR_ERRORS,
   GET_ALL_CHATS_FAIL,
   GET_ALL_CHATS_REQUEST,
@@ -7,6 +8,7 @@ import {
   GET_CHAT_REQUEST,
   GET_CHAT_SUCCESS,
 } from "../constants/chatConstant";
+import { CREATE_NOTIFY_SUCCESS } from "../constants/notifyConstants";
 
 const searchReducer = (state, action) => {
   switch (action.type) {
@@ -59,6 +61,18 @@ const allChatsReducer = (state, action) => {
         loading: false,
         chats: action.payload.chats,
       };
+
+    case CREATE_NOTIFY_SUCCESS:
+      state.chats[
+        state.chats.findIndex((chat) => chat._id === action.payload.chat._id)
+      ] = action.payload.chat;
+      return state;
+
+    case CHANGE_CHAT_REQUEST:
+      state.chats[
+        state.chats.findIndex((chat) => chat._id === action.payload.chat._id)
+      ] = action.payload.chat;
+      return state;
 
     case GET_ALL_CHATS_FAIL:
       return {

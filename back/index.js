@@ -4,13 +4,13 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
+const axios = require("axios");
 
 const mongodb = require("./config/mongodb");
 const user = require("./routers/userRouter");
 const message = require("./routers/messageRouter");
 const error = require("./middlewares/error");
 const chat = require("./routers/chatRouter");
-const notify = require("./routers/notificationRouter");
 
 dotenv.config({ path: path.resolve(__dirname, "./config/.env") });
 
@@ -27,7 +27,6 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use("/api/v1/user", user);
 app.use("/api/v1/chats", chat);
 app.use("/api/v1/message", message);
-app.use("/api/v1/notify", notify);
 
 const port = process.env.PORT;
 
@@ -42,14 +41,16 @@ app.use(error);
 const server = app.listen(port);
 
 const io = require("socket.io")(server, {
-  pingTimeout: 60000,
+  pingTimeout: 600000,
   cors: { origin: "http://localhost:3000" }, // "http://localhost:3000/",
 });
 
+let connect = new Set();
 io.on("connection", (socket) => {
   socket.on("setup", (data) => {
     socket.join(data._id);
-    socket.emit("connected");
+    connect.add(data._id);
+    socket.emit("connected", connect);
   });
 
   socket.on("chat-join", (data) => {
