@@ -57,4 +57,8 @@ const changeChat = (data) => async (dispatch) => {
   dispatch({ type: CHANGE_CHAT_REQUEST, payload: data });
 };
 
+const setMediaStream = (data) => async (dispatch) => {
+  dispatch({ type: "add_media", payload: data });
+};
+
 export { getAllChats, getChats, createGroup, clearErrors, changeChat };

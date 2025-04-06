@@ -71,4 +71,20 @@ io.on("connection", (socket) => {
       socket.in(user._id).emit("message received", data);
     });
   });
+
+  socket.on("call-now", (data) => {
+    socket.in(data.sendUser._id).emit("income-call", data);
+  });
+
+  socket.on("call-denied", (data) => {
+    socket.in(data.user._id).emit("call-user-denied", data);
+  });
+
+  socket.on("call-accept", (data) => {
+    socket.in(data.user._id).emit("call-pick", data);
+  });
+
+  socket.on("v-call-picked", (data) => {
+    socket.in(data.me._id).emit("v-call-picked", data);
+  });
 });

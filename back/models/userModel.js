@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your password"],
   },
+  username: {
+    type: String,
+    unique: true,
+  },
   notification: [
     {
       _id: {

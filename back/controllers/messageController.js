@@ -6,7 +6,7 @@ const Chat = require("../models/chatModel");
 const message = asyncHandler(async (req, res, next) => {
   let { chatId } = req.params;
 
-  const message = await Message.find({ chat: chatId })
+  let message = await Message.find({ chat: chatId })
     .populate("sender", "name email")
     .populate("chat");
 
@@ -16,6 +16,12 @@ const message = asyncHandler(async (req, res, next) => {
     chat.unread = [];
     await chat.save();
   }
+
+  message = await User.populate(message, {
+    path: "chat.users",
+    select: "name email",
+  });
+
   res.json({
     success: true,
     message,
@@ -45,7 +51,7 @@ const createMessage = asyncHandler(async (req, res, next) => {
   await Chat.findByIdAndUpdate(
     chatId,
     {
-      latestMessage: message,
+      latestMessage: message._id,
       $push: { unread: message._id },
     },
     {

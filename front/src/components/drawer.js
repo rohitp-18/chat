@@ -24,7 +24,7 @@ import { Link } from "react-router-dom";
 function NavDrawer({ open, setOpen, setNavTab }) {
   const listItem = [
     { name: "Chats", url: "/?nav=chats", icon: <Chat /> },
-    { name: "Calls", url: "/?nav=calls", icon: <Call /> },
+    { name: "Calls", url: "/calls", icon: <Call /> },
     { name: "Notification", url: "/notify", icon: <Notifications /> },
   ];
 

@@ -88,6 +88,12 @@ const allChatsReducer = (state, action) => {
         error: null,
       };
 
+    case "add_media":
+      return {
+        ...state,
+        media: action.payload,
+      };
+
     default:
       return {
         ...state,

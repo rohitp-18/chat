@@ -39,6 +39,7 @@ const userReducer = (state = {}, action) => {
       return {
         loading: false,
         success: false,
+        eError: true,
       };
 
     case LOGIN_FAILURE:
@@ -59,6 +60,13 @@ const userReducer = (state = {}, action) => {
       return {
         loading: false,
         error: null,
+      };
+
+    case "PEER_CONNECTED":
+      return {
+        ...state,
+        peer: action.payload.peer,
+        peerId: action.payload.peerId,
       };
 
     default:

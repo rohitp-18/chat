@@ -16,7 +16,7 @@ const ChatModel = ({ user, message }) => {
     // span.current && div.current.scroll(0, div.current.offsetHeight);
     div.current.scrollIntoView(false);
     // eslint-disable-next-line
-  }, [span.current]);
+  }, [message, span.current, user]);
   return (
     <>
       <div

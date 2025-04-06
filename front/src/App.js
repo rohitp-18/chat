@@ -2,7 +2,7 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useEffect } from "react";
 import Chat from "./pages/Chat";
-import { Provider, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Register from "./pages/register";
 import Login from "./pages/login";
 import Home from "./pages/Home";
@@ -12,6 +12,7 @@ import ProtectRoute from "./components/ProtectRoute";
 import Notify from "./pages/notify";
 import socket from "./components/socketContext";
 import { getAllNotify } from "./store/actions/notifyActions";
+import Call from "./pages/Call";
 
 function App() {
   useEffect(() => {
@@ -19,7 +20,7 @@ function App() {
     store.dispatch(getAllNotify());
   }, [store]);
 
-  const { user } = useSelector((state) => state.user);
+  const { user, peer } = useSelector((state) => state.user);
   const { users } = useSelector((state) => state.select);
   // const { socket } = useSelector((state) => state.select);
   const dispatch = useDispatch();
@@ -55,7 +56,11 @@ function App() {
     },
     {
       path: "/notify",
-      element: <>{socket && <Notify />}</>,
+      element: <ProtectRoute>{socket && <Notify />}</ProtectRoute>,
+    },
+    {
+      path: "/calls",
+      element: <ProtectRoute>{socket && peer && <Call />}</ProtectRoute>,
     },
     {
       path: "/:id",

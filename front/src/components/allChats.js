@@ -106,7 +106,7 @@ function AllChats({ view, setNavTab }) {
               </div>
             </div>
             <div className="">
-              {item.unread && !chat ? (
+              {item.unread.length != 0 && !chat ? (
                 item.latestMessage.sender !== user._id &&
                 item.unread.length !== 0 ? (
                   <p className="text-[#fff] px-1 flex items-center justify-center text-xs bg-black rounded-full min-w-[18px] min-h-[18px]">
@@ -116,7 +116,7 @@ function AllChats({ view, setNavTab }) {
                   <></>
                 )
               ) : (
-                chat._id != item._id && <></>
+                chat && chat._id != item._id && <></>
               )}
             </div>
           </div>

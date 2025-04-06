@@ -23,6 +23,7 @@ import socket from "../components/socketContext";
 import { createNotify, readNotify } from "../store/actions/notifyActions";
 import { useMemo } from "react";
 import { changeChat } from "../store/actions/chatAction";
+import peerService from "../components/peerService";
 
 // let socket, selectedChat;
 const Chat = ({ view }) => {
@@ -62,7 +63,7 @@ const Chat = ({ view }) => {
     try {
       const { data } = await axios.get(`/message/${chat._id}`);
 
-      setMessage(data.message);
+      setMessage([...data.message]);
       socket.emit("chat-join", chat._id);
     } catch (error) {}
   };
@@ -124,9 +125,9 @@ const Chat = ({ view }) => {
         setChatt(false);
       } else {
         setMessage((mess) => [...mess, data]);
+        console.log(data, message.length, message[0]);
         data.chat.latestMessage = data;
         data.chat.unread = [];
-        console.log(data);
         dispatch(readNotify(chat._id));
         dispatch(changeChat({ chat: data.chat }));
       }
@@ -135,7 +136,7 @@ const Chat = ({ view }) => {
     return () => {
       socket.off("message received");
     };
-  }, [chat, message, socket]);
+  }, [chat, socket, setMessage]);
 
   const typingInp = (value) => {
     if (!typing) {
@@ -169,11 +170,10 @@ const Chat = ({ view }) => {
         chatId: chat._id,
       });
 
+      socket.emit("new message", data.message);
       chat.latestMessage = data.message;
       setMessage((mess) => [...mess, data.message]);
       dispatch(changeChat({ chat }));
-
-      socket.emit("new message", data.message);
     } catch (error) {}
   };
 
@@ -184,6 +184,29 @@ const Chat = ({ view }) => {
       sendMessage(e);
     }
   };
+
+  const callNow = () => {
+    var getUserMedia =
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia;
+
+    getUserMedia({ video: true, audio: true }, async (mediaStream) => {
+      const sendUser = chat
+        ? chat.users[0]._id === user._id
+          ? chat.users[1]
+          : chat.users[0]
+        : {};
+
+      const offer = await peerService.getOffer();
+      socket.emit("call-now", { user, stream: offer, sendUser });
+      dispatch({ type: "add_media", payload: mediaStream });
+    });
+
+    navigate("/calls");
+  };
+
+  useEffect(() => {}, [socket]);
 
   return (
     <>
@@ -212,7 +235,7 @@ const Chat = ({ view }) => {
               </h1>
             </div>
             <div className="flex xl:gap-[20px] xl:px-4">
-              <IconButton>
+              <IconButton onClick={callNow}>
                 <VideocamOutlined />
               </IconButton>
               <IconButton>

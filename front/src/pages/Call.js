@@ -1,27 +1,11 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
-// import Notify from "./notify";
-// import { useNavigate } from "react-router-dom";
-// import MoreVertIcon from "@mui/icons-material/MoreVert";
-// import { Stack, Avatar, Box, Modal, InputBase } from "@mui/material";
-import Header from "../components/Header";
-import Chats from "./Chat";
-
-// import {
-//   getUserAction,
-//   addUserChat,
-//   removeUserChat,
-// } from "../store/actions/userAction";
-// import Group from "../components/Group";
-import { getAllChats, getChats } from "../store/actions/chatAction";
-import AllChats from "../components/allChats";
-import About from "../components/About";
-import AboutChat from "../components/AboutChat";
+import React, { useEffect, useState } from "react";
+import VideoCall from "../components/videoCall";
 import NavDrawer from "../components/drawer";
-import MobileNavbar from "../components/mobileNavbar";
+import AllChats from "../components/allChats";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllChats } from "../store/actions/chatAction";
 
-const Home = () => {
-  // const nevigate = useNavigate();
+function Call() {
   const { user } = useSelector((state) => state.user);
   const { chat } = useSelector((state) => state.select);
   // const { chats, loading } = useSelector((state) => state.chats);
@@ -41,14 +25,6 @@ const Home = () => {
     dispatch(getAllChats());
   }, [dispatch]);
 
-  // const findUser = async (e) => {
-  //   dispatch(getChats(e.target.value));
-  // };
-
-  // useEffect(() => {
-  //   console.log(allUser.length);
-  // }, [notify, userChat, allUser]);
-
   return (
     <>
       {user && (
@@ -64,7 +40,7 @@ const Home = () => {
             >
               <AllChats />
             </section>
-            <Chats view={"laptop"} />
+            <VideoCall view={"laptop"} />
           </main>
           <main
             style={{ overflowY: "hidden" }}
@@ -77,20 +53,23 @@ const Home = () => {
             >
               <AllChats setNavTab={setNavTab} view={"tablet"} />
             </section>
-            <Chats view={"tablet"} />
+            <VideoCall view={"tablet"} />
             {/* {chat ? <Chats view={"tablet"} /> : <AllChats view={"mobile"} />} */}
           </main>
           <main
             style={{ overflowY: "hidden" }}
             className="mobile display-none  w-[100%] bg-[#eee] h-[100vh]"
           >
-            <MobileNavbar />
-            {chat ? <Chats view={"mobile"} /> : <AllChats view={"mobile"} />}
+            {chat ? (
+              <VideoCall view={"mobile"} />
+            ) : (
+              <AllChats view={"mobile"} />
+            )}
           </main>
         </>
       )}
     </>
   );
-};
+}
 
-export default Home;
+export default Call;
